@@ -3,7 +3,7 @@
 
   const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* Nav */
+  /* Nav con fondo al hacer scroll */
   const nav = document.getElementById("nav");
   const onScroll = () => nav.classList.toggle("scrolled", window.scrollY > 24);
   window.addEventListener("scroll", onScroll, { passive: true });
@@ -25,7 +25,7 @@
     })
   );
 
-  /* Reveal */
+  /* Reveal al entrar en pantalla */
   const reveals = document.querySelectorAll(".reveal");
   if (prefersReduced) {
     reveals.forEach((el) => el.classList.add("visible"));
@@ -44,15 +44,16 @@
     reveals.forEach((el) => io.observe(el));
   }
 
-  /* Contadores estilo arcade */
+  /* Contadores animados */
   const counters = document.querySelectorAll(".stat-num");
   const animateCount = (el) => {
     const target = parseInt(el.dataset.count, 10);
-    const dur = 1200;
+    const dur = 1400;
     const start = performance.now();
     const tick = (now) => {
       const p = Math.min((now - start) / dur, 1);
-      el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(target * eased);
       if (p < 1) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
@@ -71,19 +72,21 @@
   );
   counters.forEach((el) => co.observe(el));
 
-  /* Nombre tecleado letra a letra (estilo consola) */
+  /* Efecto de tecleo en el nombre */
   const typed = document.getElementById("typed-name");
   if (typed && !prefersReduced) {
-    const name = typed.dataset.text || typed.textContent;
+    const name = typed.textContent;
     typed.textContent = "";
+    const caret = document.createElement("span");
+    caret.className = "caret";
+    typed.after(caret);
     let i = 0;
     const type = () => {
       if (i <= name.length) {
         typed.textContent = name.slice(0, i++);
-        typed.dataset.text = name.slice(0, i);
-        setTimeout(type, 80);
+        setTimeout(type, 75);
       } else {
-        typed.dataset.text = name;
+        setTimeout(() => caret.remove(), 2200);
       }
     };
     setTimeout(type, 500);
@@ -103,14 +106,14 @@
       document.execCommand("copy");
       ta.remove();
     }
-    copyBtn.textContent = "[ ¡COPIADO! ]";
+    copyBtn.textContent = "¡Copiado!";
     copyBtn.classList.add("copied");
     setTimeout(() => {
-      copyBtn.textContent = "[ COPIAR CORREO ]";
+      copyBtn.textContent = "Copiar correo";
       copyBtn.classList.remove("copied");
     }, 2000);
   });
 
-  /* Año en el footer */
+  /* Año dinámico en el footer */
   document.getElementById("year").textContent = new Date().getFullYear();
 })();
